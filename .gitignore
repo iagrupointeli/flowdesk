@@ -1,0 +1,15 @@
+.env
+node_modules/
+dist/
+build/
+*.log
+
+# Config local (Claude Code) — não é do projeto
+.claude/settings.local.json
+
+# Recebe segredos reais de produção quando configurado no servidor;
+# template versionado fica em ecosystem.config.example.cjs
+ecosystem.config.cjs
+
+# Dados operacionais, não código
+docs/*.csv

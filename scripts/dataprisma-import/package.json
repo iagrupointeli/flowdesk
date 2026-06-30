@@ -1,0 +1,17 @@
+{
+  "name": "dataprisma-import",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Ingestão de ativos OOH: Dataprisma (MySQL) → InteliONE (PostgreSQL)",
+  "scripts": {
+    "discover":   "node migrate-assets.js --discover",
+    "poc-sc-dry": "node migrate-assets.js --state SC --limit 1000 --dry-run",
+    "poc-sc":     "node migrate-assets.js --state SC --limit 1000",
+    "import-sc":  "node migrate-assets.js --state SC",
+    "import-all": "node migrate-assets.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.11.0",
+    "pg": "^8.13.0"
+  }
+}

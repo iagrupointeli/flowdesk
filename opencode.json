@@ -1,0 +1,5 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+  "instructions": ["CLAUDE.md"]
+}

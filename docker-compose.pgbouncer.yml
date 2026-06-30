@@ -1,0 +1,34 @@
+# PgBouncer — pool de conexões entre Express e PostgreSQL
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.pgbouncer.yml up -d
+#
+# Após subir, altere no .env:
+#   POSTGRES_PORT=6432
+# e reinicie o backend (pm2 restart flowdesk-3001).
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: flowdesk_pgbouncer
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 500
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      RESERVE_POOL_SIZE: 5
+      RESERVE_POOL_TIMEOUT: 3
+      SERVER_IDLE_TIMEOUT: 600
+      AUTH_TYPE: trust
+      ADMIN_USERS: ${POSTGRES_USER}
+    ports:
+      - "6432:5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
