@@ -13,7 +13,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      # Bind só em localhost — nunca exposto pra rede externa
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -31,8 +32,9 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      # Bind só em localhost — nunca exposto pra rede externa
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     healthcheck:
       # Usa o endpoint HTTP nativo do MinIO — não depende do mc estar instalado na imagem
       # /minio/health/live retorna 200 apenas quando a API está pronta para aceitar conexões
