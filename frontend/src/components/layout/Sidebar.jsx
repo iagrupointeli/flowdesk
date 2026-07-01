@@ -92,7 +92,7 @@ export default function Sidebar({ pinned, onTogglePin }) {
                     border-r border-gray-200
                     bg-white
                     transition-transform duration-200 ease-in-out
-                    ${visible ? 'translate-x-0 shadow-xl' : '-translate-x-full shadow-none'}`}
+                    ${visible ? 'translate-x-0 shadow-[0_20px_40px_-15px_rgba(37,99,235,0.25)]' : '-translate-x-full shadow-none'}`}
       >
         {/* Logo + pin */}
         <div className="flex h-14 flex-shrink-0 items-center justify-between border-b border-gray-200 px-4">
@@ -118,7 +118,8 @@ export default function Sidebar({ pinned, onTogglePin }) {
             onClick={() => setShowNewDemandModal(true)}
             className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-lg
                        bg-primary-600 px-3 py-2 text-sm font-semibold text-white
-                       transition-colors hover:bg-primary-700
+                       shadow-sm shadow-primary-600/20
+                       transition-all hover:bg-primary-700 hover:shadow-md hover:shadow-primary-600/25 active:scale-[0.98]
                        focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1"
           >
             <span aria-hidden="true">+</span>
@@ -236,7 +237,7 @@ export default function Sidebar({ pinned, onTogglePin }) {
         {/* Rodapé */}
         <div className="border-t border-gray-200 px-4 py-3">
           <p className="truncate text-xs font-medium text-gray-700">{user?.name ?? '—'}</p>
-          <p className="truncate text-xs text-gray-400">{user?.email}</p>
+          <p className="truncate text-xs text-gray-500">{user?.email}</p>
           {user?.role !== 'user' && (
             <span className="mt-1 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700">
               {user.role === 'super_admin' ? 'Super Admin' : 'Admin'}

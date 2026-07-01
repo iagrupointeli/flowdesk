@@ -142,7 +142,7 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
                 ref={adminRef}
                 className="absolute right-0 top-full z-50 mt-1.5 w-72
                            rounded-xl border border-gray-200
-                           bg-white shadow-xl p-3"
+                           bg-white shadow-[0_20px_40px_-15px_rgba(37,99,235,0.2)] p-3"
               >
                 <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Administração</p>
                 <div className="grid grid-cols-3 gap-1">
@@ -237,7 +237,7 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
               ref={userRef}
               className="absolute right-0 top-full z-50 mt-1.5 w-56
                          rounded-xl border border-gray-200
-                         bg-white shadow-xl py-1.5"
+                         bg-white shadow-[0_20px_40px_-15px_rgba(37,99,235,0.2)] py-1.5"
             >
               {/* Perfil */}
               <Link
@@ -308,7 +308,7 @@ const NotificationPopover = forwardRef(function NotificationPopover(
       role="dialog"
       aria-label="Notificações"
       className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-gray-200
-                 bg-white shadow-xl sm:w-96"
+                 bg-white shadow-[0_20px_40px_-15px_rgba(37,99,235,0.2)] sm:w-96"
     >
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <h2 className="text-sm font-semibold text-gray-900">
