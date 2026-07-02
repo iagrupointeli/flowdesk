@@ -303,6 +303,53 @@ rewrites.
 
 ---
 
+## Track F — From the 2026-07-02 leadership meeting (new intake, not scoped yet)
+
+Raw from a meeting Ruan had today. Not sized or sequenced against the rest of
+the roadmap yet — capturing before detail is lost. All fit the free-tier
+thesis (deterministic code, no runtime LLM).
+
+### F1. Central hub homepage
+Landing page after login: a panel with every tool/platform a collaborator has
+access to, including external/decentralized ones not yet absorbed into
+InteliONE (buttons/links out to them). Explicit direction: over time, absorb
+more of those tools INTO InteliONE rather than just link out — this is the
+transitional version. Same page doubles as the "centralize communication"
+hub — one place with every access link instead of scattered across chats/
+docs/bookmarks.
+
+### F2. Concrete user hierarchy
+Today's roles (`super_admin` / `dept_admin` / `user`) are a flat RBAC tier,
+not an org hierarchy. Ruan wants real hierarchy levels — named examples from
+the meeting: Vendedor, Gestor, Diretor, CEO, DPO, Gestor de RH. Also wants
+**RH to have the power to create/assign new hierarchy levels themselves**
+(not hardcoded, not a dev task every time the org chart changes) — implies a
+`hierarchy_levels` table (or similar) with CRUD gated to an RH-flagged role,
+separate from the existing coarse RBAC roles. Open question: does this
+replace or layer on top of the current `role` enum? Needs a design pass
+before implementation.
+
+### F3. Projects — analytics + task lifecycle depth
+- **Status charts**: dashboard for the "Projetos: ONE" area — counts/trends
+  by status (executed, stopped, archived, etc).
+- **Due-date drift dashboard**: track every time a task's delivery date gets
+  pushed (e.g. 10/07 → 30/07 → 10/08) as a timeline, not just the latest
+  date. Ruan's framing: this is a diagnostic tool — repeated postponement on
+  a task is a signal worth surfacing (lack of time? lack of focus? lack of
+  direction?), not just noise to discard. Needs a `task_due_date_history`-
+  style append-only log instead of overwriting `due_date` in place.
+- **Subtasks** on existing tasks (not just top-level tasks).
+- **Comments + @mentions** on tasks.
+- Confirm task-level responsible/assignee + due date are already assignable
+  (may already exist — verify against current `personal_tasks`/demands
+  schema before treating as net-new).
+
+### F4. (Explicitly flagged FUTURE, not now) Webmail integration
+Integrate grupointeli webmail into InteliONE. Ruan flagged this one himself
+as later-horizon, unlike F1–F3.
+
+---
+
 ## Deferred / explicitly out of scope for now
 
 - LLM at runtime (any paid API) — excluded by design.
