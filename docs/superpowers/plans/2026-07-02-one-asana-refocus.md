@@ -24,20 +24,32 @@ holding's operation needs them surfaced again.
 
 ## R1 — Navigation restructure (frontend only, fast)
 
-- **Sidebar gains an "Administração" section** (gated to ADMIN_ROLES, same
-  RBAC as today's gear dropdown): Dashboard, Usuários, Departamentos,
-  Workflows, Webhooks.
-- **Header gear dropdown removed.**
-- **Backlog'd nav items** (routes stay registered, nav entries removed, one
-  `BACKLOG` constant in code so restoring any of them is a one-liner):
+✅ **DONE 2026-07-02, commit `b4876ef`.** Decisions confirmed by Ruan: hide
+QUADROS too, routes stay reachable by direct URL (not hard-blocked), rename
+"Áreas" to "Departamentos", batch-deploy with the rest.
+
+- Sidebar gained an "Administração" section (gated to
+  dept_admin/super_admin): Dashboard, Usuários, Departamentos, Workflows,
+  Webhooks.
+- Header gear dropdown removed entirely (state/handlers/icons/ADMIN_ITEMS).
+- Backlog'd — no menu entry anywhere, routes/pages/backend untouched and
+  reachable by direct URL (verified `/admin/map` renders fine unlinked):
   Comercial, Tags, Pontos, Ocupação, Grade, Mapa, Recorrências, Auditoria,
   Modo TV.
-- **"Nova Demanda" button removed** from the sidebar (demand creation becomes
-  unreachable from the UI).
-- Open decision: QUADROS section (demand-type kanbans) — hide together with
-  the rest of the demand system (recommended; demands = 0) or keep.
-- Open decision: hidden features' routes — keep working via direct URL
-  (recommended for now) or hard-block.
+- "Nova Demanda" button and the "Quadros" section (demand-type boards)
+  removed from the sidebar. `demandTypeStore`/`NewDemandModal` no longer
+  imported there; backend + store code untouched.
+- "Áreas" sidebar section renamed to "Departamentos" — label only for now,
+  still reads `GET /areas`; real backend unification is R2 below.
+- Verified in preview with disposable test accounts: super_admin sees the
+  full new layout; plain `user` role correctly does NOT see the
+  Administração section (RBAC intact).
+
+**Not addressed, flagged for Ruan:** `/board` is still the default
+post-login landing page and its empty state still says "Selecione um tipo
+de demanda na barra lateral" — stale copy now that demand types aren't in
+the nav. Not broken, just orphaned language. Candidate to fix alongside R4
+(when Modo Foco / a projects-based view becomes the natural landing page).
 
 ## R2 — Áreas = Departamentos unification (migration 050)
 
