@@ -79,8 +79,10 @@ export default function AdminAssetsMap() {
         </div>
       )}
 
-      {/* Mapa */}
-      <div className="relative flex-1">
+      {/* Mapa — isolate cria stacking context própria: o z-index interno do
+          Leaflet (até 1000 em controles/panes) fica contido aqui dentro e
+          não vaza por cima dos dropdowns do Header. */}
+      <div className="relative isolate z-0 flex-1">
         {isLoading && (
           <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-white/60">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
