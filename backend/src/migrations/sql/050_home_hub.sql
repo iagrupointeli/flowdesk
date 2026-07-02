@@ -65,9 +65,9 @@ INSERT INTO home_links (key, label, url, category, default_starred, default_posi
 ON CONFLICT (key) DO NOTHING;
 
 -- ── Seed: sites regionais por estado (dentro da pasta "Estados") ───────────
--- Só os 16 confirmados ao vivo em 2026-07-02 (padrão https://www.{UF}outdoor.com.br/,
--- exceto RS = rgoutdoor.com.br). Os outros 11 estados (AC/AP/AM/DF/GO/MS/PB/PI/
--- RO-estado/RR/SE) não resolveram — não incluídos até confirmação do domínio real.
+-- Confirmados ao vivo em 2026-07-02 (padrão https://www.{UF}outdoor.com.br/,
+-- exceto RS = rgoutdoor.com.br). Ainda faltam DF/GO/MS/PB/PI/SE — não
+-- incluídos até confirmação do domínio real (Ruan, 2026-07-02).
 INSERT INTO home_links (key, label, url, category, state_abbr, default_position) VALUES
   ('estado-al', 'Alagoas',             'https://www.aloutdoor.com.br/', 'state', 'AL', 0),
   ('estado-ba', 'Bahia',               'https://www.baoutdoor.com.br/', 'state', 'BA', 1),
@@ -84,5 +84,8 @@ INSERT INTO home_links (key, label, url, category, state_abbr, default_position)
   ('estado-rs', 'Rio Grande do Sul',   'https://www.rgoutdoor.com.br/', 'state', 'RS', 12),
   ('estado-sc', 'Santa Catarina',      'https://www.scoutdoor.com.br/', 'state', 'SC', 13),
   ('estado-sp', 'São Paulo',           'https://www.spoutdoor.com.br/', 'state', 'SP', 14),
-  ('estado-to', 'Tocantins',           'https://www.tooutdoor.com.br/', 'state', 'TO', 15)
+  ('estado-to', 'Tocantins',           'https://www.tooutdoor.com.br/', 'state', 'TO', 15),
+  -- Região Norte consolidada (AC/AP/AM/RO/RR não têm site próprio — um só
+  -- cobre os 5, confirmado pelo Ruan em 2026-07-02).
+  ('estado-norte', 'Norte (AC · AP · AM · RO · RR)', 'https://www.norteoutdoor.com.br/', 'state', NULL, 16)
 ON CONFLICT (key) DO NOTHING;
