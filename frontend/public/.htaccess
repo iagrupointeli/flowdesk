@@ -1,0 +1,14 @@
+# SPA fallback — rotas do React Router (ex: /demands/xyz) não existem como
+# arquivo físico; sem isso, F5 fora da home ou link direto retorna 404 do Apache.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Requisições de arquivo/pasta reais passam direto (assets, imagens, etc.)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Tudo mais cai no index.html — o React Router assume a partir daí
+  RewriteRule ^ index.html [L]
+</IfModule>

@@ -60,6 +60,13 @@ export async function uploadPhoto(req, res) {
   } catch (err) { return handleError(err, res) }
 }
 
+export async function assetsMap(req, res) {
+  const { lat, lng, radius_km, asset_type, city } = req.query
+  try {
+    return res.json(await svc.getAssetsMap({ lat, lng, radius_km, asset_type, city }))
+  } catch (err) { return handleError(err, res) }
+}
+
 export async function idleAssets(req, res) {
   const horizonDays = Number(req.query.horizon_days ?? 30)
   try {

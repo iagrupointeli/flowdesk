@@ -168,6 +168,49 @@ export async function archiveAsset(id) {
  * Timeline do ponto: demandas vinculadas, mais recentes primeiro.
  * É o histórico do ativo — instalações, manutenções, checkings.
  */
+/**
+ * Pontos com coordenadas pra exibição em mapa — payload leve (sem joins de
+ * demandas). Filtro de raio opcional via earthdistance (lat/lng + radius_km).
+ * Só pontos ativos com lat/lng preenchidos (backfill: migration 049).
+ */
+export async function getAssetsMap(filters = {}) {
+  const { lat, lng, radius_km, asset_type, city } = filters
+  const params = []
+  const where  = ['a.archived_at IS NULL', 'a.lat IS NOT NULL', 'a.lng IS NOT NULL']
+
+  if (asset_type) {
+    params.push(asset_type)
+    where.push(`a.asset_type = $${params.length}`)
+  }
+  if (city) {
+    params.push(city)
+    where.push(`a.city = $${params.length}`)
+  }
+
+  let radiusClause = ''
+  if (lat != null && lng != null && radius_km != null) {
+    params.push(Number(lat), Number(lng), Number(radius_km) * 1000)
+    const [p1, p2, p3] = [params.length - 2, params.length - 1, params.length]
+    // earth_box() @> usa o índice GiST como pré-filtro por bounding box;
+    // earth_distance() faz o corte preciso final.
+    radiusClause = `AND earth_box(ll_to_earth($${p1},$${p2}), $${p3}) @> ll_to_earth(a.lat, a.lng)
+                     AND earth_distance(ll_to_earth($${p1},$${p2}), ll_to_earth(a.lat, a.lng)) <= $${p3}`
+  }
+
+  const { rows } = await query(
+    `SELECT a.id, a.code, a.name, a.asset_type, a.city, a.dimensions,
+            a.lat, a.lng, a.photo_url, a.is_premium
+     FROM assets a
+     WHERE ${where.join(' AND ')} ${radiusClause}
+     ORDER BY a.name ASC
+     LIMIT 20000`,
+    params
+  )
+
+  await Promise.all(rows.map(async r => { r.photo_url = await resolvePhotoUrl(r.photo_url) }))
+  return rows
+}
+
 export async function getIdleAssets(horizonDays = 30) {
   const { rows } = await query(
     `SELECT

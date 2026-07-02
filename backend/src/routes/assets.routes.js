@@ -9,6 +9,7 @@ router.use(authenticate)
 
 // ── Leitura: todos os roles (select de ponto no NewDemand) ───────────────────
 router.get('/',                    authorize('super_admin', 'dept_admin', 'user'), ctrl.list)
+router.get('/map',                 authorize('super_admin'),                       ctrl.assetsMap)   // análise/estratégico — super_admin only
 router.get('/occupancy-grid',      authorize('super_admin', 'dept_admin'),        ctrl.occupancyGrid)
 router.get('/idle',                authorize('super_admin', 'dept_admin'),        ctrl.idleAssets)
 router.get('/:id/availability',    authorize('super_admin', 'dept_admin', 'user'), ctrl.availability)

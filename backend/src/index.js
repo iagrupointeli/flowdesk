@@ -45,6 +45,11 @@ const server = http.createServer(app)
 
 const ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173'
 
+// Confia em exatamente 1 hop de proxy reverso (Nginx em produção) — sem isso,
+// req.ip resolve pro IP do Nginx e o rate limiter trata todo mundo como um
+// único cliente. Local (sem proxy) não é afetado.
+app.set('trust proxy', 1)
+
 export const io = new SocketServer(server, {
   cors:              { origin: ORIGIN, credentials: true },
   transports:        ['websocket', 'polling'],

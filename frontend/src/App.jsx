@@ -31,6 +31,7 @@ const AdminAssets         = lazy(() => import('./pages/admin/AdminAssets'))
 const AdminCampaigns      = lazy(() => import('./pages/admin/AdminCampaigns'))
 const AdminPortfolios     = lazy(() => import('./pages/admin/AdminPortfolios'))
 const AdminOccupancy      = lazy(() => import('./pages/admin/AdminOccupancy'))
+const AdminAssetsMap      = lazy(() => import('./pages/admin/AdminAssetsMap'))
 const ChatLayout          = lazy(() => import('./pages/chat/ChatLayout'))
 const FocusMode           = lazy(() => import('./pages/FocusMode'))
 const TvMode              = lazy(() => import('./pages/TvMode'))
@@ -146,6 +147,11 @@ export default function App() {
                 <Route path="/admin/campaigns"               element={<AdminCampaigns />} />
                 <Route path="/admin/portfolios"              element={<AdminPortfolios />} />
                 <Route path="/admin/occupancy"               element={<AdminOccupancy />} />
+              </Route>
+
+              {/* Análise/estratégico — apenas super_admin */}
+              <Route element={<ProtectedRoute roles={['super_admin']} />}>
+                <Route path="/admin/map"                     element={<AdminAssetsMap />} />
               </Route>
             </Route>
           </Route>

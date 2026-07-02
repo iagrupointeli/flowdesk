@@ -92,6 +92,13 @@ busboy (multipart). Aliases: `#config/*`, `#services/*`, `#controllers/*`, `#uti
 - **JWT não inclui `name` do usuário**: o middleware `authenticate` injeta apenas
   `{ id, role, deptIds, primaryDeptId }`. Quando um service precisar do nome do usuário
   (ex: mensagem de notificação), buscar via query: `SELECT name FROM users WHERE id = $1`.
+- **Rate limit + lockout no login (migration 048)**: `loginLimiter` (10/15min por IP,
+  `express-rate-limit`) + lockout de conta (`users.failed_login_attempts`/`locked_until`,
+  5 tentativas → 15min bloqueado, checado ANTES do bcrypt.compare). Reset automático no
+  login bem-sucedido. Testado localmente 2026-07-02 — ambas as camadas confirmadas.
+- **`app.set('trust proxy', 1)` é obrigatório em produção**: sem isso, `req.ip` resolve
+  pro IP do Nginx (proxy reverso) e todo mundo compartilha o mesmo rate limit bucket.
+  Local (sem proxy) não é afetado.
 
 ## Negócio OOH — Calendário de Bi-semanas
 
@@ -174,11 +181,12 @@ WHERE state = 'BA' AND source = 'dataprisma' AND department_id IS NULL;
 | 045 | Performance (GIN indexes, geo indexes) | ✅ Aplicada | Busca `Blumenau/SC` ~1ms via geo index |
 | 046 | Verticalization AI (maintenance_rules, service_orders, checking_queue) | ✅ Aplicada | Loop Inteli Estruturas → MovePro |
 | **047** | **Recursos de Matriz / Agenda de Salas** | ✅ **Aplicada** (via `docker exec`) | LED, Studio, Tática + Google Calendar sync |
-| 048 | calendar_sync_state (sync_token por calendário) | Planejada | Necessária para múltiplos calendários com pull incremental |
+| **048** | **Login lockout** (failed_login_attempts, locked_until) | ✅ **Aplicada** (via `docker exec`) | Ver Auth — Gotchas conhecidos |
+| 049 | calendar_sync_state (sync_token por calendário) | Planejada | Necessária para múltiplos calendários com pull incremental — **renumerada de 048 pra 049** (048 foi pro login lockout) |
 
-> **Migrations 043–047 já estão no banco.** A 047 foi aplicada via `docker exec` (não `npm run migrate`,
-> que falha com o PgBouncer ativo — ver gotcha SQL). Próxima nova migration: registrar em
-> `schema_migrations` após aplicar pelo mesmo método.
+> **Migrations 043–048 já estão no banco.** 047 e 048 foram aplicadas via `docker exec` (não
+> `npm run migrate`, que falha com o PgBouncer ativo — ver gotcha SQL). Próxima nova migration:
+> registrar em `schema_migrations` após aplicar pelo mesmo método.
 
 ### Módulo 047 — Recursos de Matriz / Agenda
 

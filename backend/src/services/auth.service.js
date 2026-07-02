@@ -4,6 +4,10 @@ import { query, getClient } from '#config/database.js'
 
 const SALT_ROUNDS = 12
 
+// ─── Lockout de login ────────────────────────────────────────────────────────
+const MAX_FAILED_ATTEMPTS = 5
+const LOCKOUT_MINUTES     = 15
+
 // ─── Helpers de token ────────────────────────────────────────────────────────
 
 function buildAccessToken(user, deptIds, primaryDeptId) {
@@ -63,7 +67,7 @@ export function verifyPassword(plaintext, hash) {
 export async function login(email, password) {
   const { rows } = await query(
     `SELECT u.id, u.name, u.email, u.password_hash, u.role, u.deactivated_at,
-            u.password_changed_at,
+            u.password_changed_at, u.failed_login_attempts, u.locked_until,
             COALESCE(
               json_agg(ud.department_id ORDER BY ud.is_primary DESC) FILTER (WHERE ud.department_id IS NOT NULL),
               '[]'
@@ -81,8 +85,38 @@ export async function login(email, password) {
   if (!user) throw Object.assign(new Error('Credenciais inválidas.'), { status: 401 })
   if (user.deactivated_at) throw Object.assign(new Error('Conta desativada.'), { status: 403 })
 
+  if (user.locked_until && new Date(user.locked_until) > new Date()) {
+    const minutesLeft = Math.ceil((new Date(user.locked_until) - new Date()) / 60_000)
+    throw Object.assign(
+      new Error(`Conta temporariamente bloqueada por excesso de tentativas. Tente novamente em ${minutesLeft} min.`),
+      { status: 429 }
+    )
+  }
+
   const valid = await verifyPassword(password, user.password_hash)
-  if (!valid) throw Object.assign(new Error('Credenciais inválidas.'), { status: 401 })
+  if (!valid) {
+    // Incremento atômico — evita race condition sob tentativas concorrentes.
+    // Ao atingir o limite, zera o contador e define o bloqueio de uma vez.
+    await query(
+      `UPDATE users
+       SET failed_login_attempts = CASE WHEN failed_login_attempts + 1 >= $2 THEN 0
+                                         ELSE failed_login_attempts + 1 END,
+           locked_until          = CASE WHEN failed_login_attempts + 1 >= $2
+                                         THEN NOW() + ($3 || ' minutes')::interval
+                                         ELSE locked_until END
+       WHERE id = $1`,
+      [user.id, MAX_FAILED_ATTEMPTS, LOCKOUT_MINUTES]
+    )
+    throw Object.assign(new Error('Credenciais inválidas.'), { status: 401 })
+  }
+
+  // Login bem-sucedido: reseta o contador se havia tentativas falhas registradas.
+  if (user.failed_login_attempts > 0 || user.locked_until) {
+    await query(
+      `UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE id = $1`,
+      [user.id]
+    )
+  }
 
   const accessToken  = buildAccessToken(user, user.dept_ids, user.primary_dept_id)
   const refreshToken = buildRefreshToken(user.id)
