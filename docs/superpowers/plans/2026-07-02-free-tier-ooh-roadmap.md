@@ -303,6 +303,14 @@ rewrites.
 
 ---
 
+> **PRIORITY PIVOT 2026-07-02 (same day, after the leadership meeting):**
+> Ruan redirected the product's current focus to projects + tasks — "make ONE
+> work like an Asana". The OOH phases below (2–6, Tracks B/C/D) are
+> **deprioritized, not cancelled**; the demand system goes to backlog (hidden
+> nav, code kept — it has 0 rows in prod anyway). The active plan is
+> **Track R** in `2026-07-02-one-asana-refocus.md`, which also absorbs most
+> of Track F3. Track F5 (idea funnel) already shipped its first slice.
+
 ## Track F — From the 2026-07-02 leadership meeting (new intake, not scoped yet)
 
 Raw from a meeting Ruan had today. Not sized or sequenced against the rest of
