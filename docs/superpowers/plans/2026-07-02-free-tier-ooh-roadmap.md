@@ -15,17 +15,14 @@ deterministic. What dies: LLM as a runtime "employee".
 
 ## Phase 0 — Automated backups (PROMOTED: first hour of work, before everything)
 
-Production currently has ZERO backups. If the server dies, 15,364 assets and
-all operational data evaporate.
-
-- Nightly `pg_dump` → MinIO bucket with 30-day retention.
-- Monthly restore test (a backup that was never restored is not a backup).
-- Optional: weekly off-server copy (download to local machine) until a second
-  storage location exists.
+✅ **DONE 2026-07-02** (host-side). Nightly `pg_dump` → `.sql.gz` via
+`/etc/cron.daily/flowdesk-backup`, output in `~/backups/`, validated
+generating correctly. Monthly restore test and off-server copy still
+open — not yet scheduled.
 
 ## Phase 1 — Geo foundation + inventory map (START HERE)
 
-✅ **CORE DONE 2026-07-02** (not yet deployed to prod). Built:
+✅ **DONE 2026-07-02 — deployed and verified in production.** Built:
 - Migration 049: `lat`/`lng` on `assets` + `cube`/`earthdistance` extensions
   (no PostGIS — decided against the image swap, earthdistance is native
   contrib and sufficient for radius queries). Backfill from `notes`
@@ -250,30 +247,28 @@ guard, streaming uploads w/ magic bytes). Findings below are fixable without
 rewrites.
 
 ### E-A. Production-critical (fix first)
-- ✅ **A1. No rate limiting on /api/auth/login** — DONE 2026-07-02. IP limiter
-  (express-rate-limit, 10/15min, headers confirmed) + account lockout
-  (migration 048: failed_login_attempts/locked_until, 5 attempts → 15min,
-  checked before bcrypt.compare) + `app.set('trust proxy', 1)` in index.js
-  (required behind Nginx or rate limit buckets by the proxy's IP for
-  everyone). Tested live locally: 401×5 → 429, correct password still
-  blocked while locked, DB state confirmed, headers confirmed. Not yet
-  deployed to prod.
-- ✅ **A2. SPA deep links broken in prod** — DONE 2026-07-02.
-  `frontend/public/.htaccess` (mod_rewrite fallback to index.html), confirmed
-  copied into `dist/` by `npm run build`. Ships automatically with every
-  build/sync — no separate deploy step needed. Not yet deployed to prod.
-- **A3. Uploads likely broken >1MB** — nginx default client_max_body_size
-  is 1m; app allows 20MB checking photos. Verify + `client_max_body_size
-  25m;` in the one.grupointeli.com nginx include.
+- ✅ **A1. No rate limiting on /api/auth/login** — DONE 2026-07-02,
+  deployed to prod. IP limiter (express-rate-limit, 10/15min) + account
+  lockout (migration 048: failed_login_attempts/locked_until, 5 attempts →
+  15min, checked before bcrypt.compare) + `app.set('trust proxy', 1)` in
+  index.js. Verified externally against prod: 429 triggers exactly on the
+  10th cumulative attempt per IP (confirms trust proxy is counting real
+  client IP, not the Nginx internal one).
+- ✅ **A2. SPA deep links broken in prod** — DONE 2026-07-02, deployed to
+  prod. `frontend/public/.htaccess` (mod_rewrite fallback to index.html).
+  Verified externally: `GET /admin/map` → 200 (was 404 before).
+- ✅ **A3. Uploads likely broken >1MB** — DONE 2026-07-02 (host-side):
+  `client_max_body_size 25m;` applied to the one.grupointeli.com nginx
+  include.
 - **A4. Stateless refresh JWT, no revocation** — logout doesn't invalidate;
   stolen token valid 7d; password change doesn't kill sessions. Fix:
-  refresh_tokens table with rotation + reuse detection.
-- **A5. /health unreachable externally** — endpoint is outside /api; nginx
-  only proxies /api. Fix: nginx location for /health + free external
-  monitor (UptimeRobot).
-- **A6. Backups** — see Phase 0.
-- **A7. socket.io nginx include sent to host but never confirmed applied** —
-  chat/realtime presumably broken in prod until verified.
+  refresh_tokens table with rotation + reuse detection. **Next up.**
+- ✅ **A5. /health unreachable externally** — DONE 2026-07-02 (host-side):
+  nginx location for /health added. Verified externally: 200. External
+  uptime monitor (UptimeRobot) still not set up.
+- ✅ **A6. Backups** — see Phase 0.
+- ✅ **A7. socket.io nginx include** — DONE 2026-07-02 (host-side),
+  confirmed applied. Verified externally: handshake → 200.
 
 ### E-B. Architectural debt (bites at national scale)
 - **B1. Background jobs inside the web process** — 5 setIntervals at boot +
