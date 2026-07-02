@@ -65,9 +65,11 @@ INSERT INTO home_links (key, label, url, category, default_starred, default_posi
 ON CONFLICT (key) DO NOTHING;
 
 -- ── Seed: sites regionais por estado (dentro da pasta "Estados") ───────────
--- Confirmados ao vivo em 2026-07-02 (padrão https://www.{UF}outdoor.com.br/,
--- exceto RS = rgoutdoor.com.br). Ainda faltam DF/GO/MS/PB/PI/SE — não
--- incluídos até confirmação do domínio real (Ruan, 2026-07-02).
+-- Todos os 27 estados+DF cobertos em 2026-07-02: 16 individuais (padrão
+-- https://www.{UF}outdoor.com.br/, exceto RS = rgoutdoor.com.br) + 3 sites
+-- consolidados multi-estado (Norte, DF/GO/MS, parte do Nordeste) — todos
+-- verificados ao vivo (200) e o conteúdo das páginas confere com os estados
+-- atribuídos, não só o nome do domínio.
 INSERT INTO home_links (key, label, url, category, state_abbr, default_position) VALUES
   ('estado-al', 'Alagoas',             'https://www.aloutdoor.com.br/', 'state', 'AL', 0),
   ('estado-ba', 'Bahia',               'https://www.baoutdoor.com.br/', 'state', 'BA', 1),
@@ -87,5 +89,12 @@ INSERT INTO home_links (key, label, url, category, state_abbr, default_position)
   ('estado-to', 'Tocantins',           'https://www.tooutdoor.com.br/', 'state', 'TO', 15),
   -- Região Norte consolidada (AC/AP/AM/RO/RR não têm site próprio — um só
   -- cobre os 5, confirmado pelo Ruan em 2026-07-02).
-  ('estado-norte', 'Norte (AC · AP · AM · RO · RR)', 'https://www.norteoutdoor.com.br/', 'state', NULL, 16)
+  ('estado-norte', 'Norte (AC · AP · AM · RO · RR)', 'https://www.norteoutdoor.com.br/', 'state', NULL, 16),
+  -- DF/Goiás/MS consolidados — página menciona Brasília, Goiás e Mato
+  -- Grosso do Sul explicitamente.
+  ('estado-df-go-ms', 'DF · Goiás · MS', 'https://www.dfgoias.com.br/', 'state', NULL, 17),
+  -- Nordeste consolidado — só os 3 estados que ainda não tinham site próprio
+  -- (CE/PE/RN/AL/BA/MA já têm o deles). Página menciona Paraíba, Piauí e
+  -- Sergipe (Teresina/Aracaju) explicitamente.
+  ('estado-nordeste', 'Nordeste (PB · PI · SE)', 'https://www.nordesteoutdoor.com.br/', 'state', NULL, 18)
 ON CONFLICT (key) DO NOTHING;
