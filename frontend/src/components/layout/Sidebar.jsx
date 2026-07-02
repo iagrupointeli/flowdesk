@@ -1,24 +1,32 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore }       from '../../stores/authStore'
-import { useDemandTypeStore } from '../../stores/demandTypeStore'
 import { useChatStore }       from '../../stores/chatStore'
-import NewDemandModal         from '../kanban/NewDemandModal'
 import api                    from '../../lib/api'
 
 const ADMIN_ROLES = ['dept_admin', 'super_admin']
 
+// Seção "Administração" — promovida do antigo dropdown da engrenagem no
+// Header (Track R1, 2026-07-02). O restante dos itens que estavam lá
+// (Comercial, Tags, Pontos, Ocupação, Grade, Mapa, Recorrências, Auditoria,
+// Modo TV) foi pro backlog: rotas/páginas continuam registradas e acessíveis
+// por URL direta, só não têm mais entrada de menu.
+const ADMIN_ITEMS = [
+  { to: '/dashboard',         label: 'Dashboard',     icon: <IconChart /> },
+  { to: '/admin/users',       label: 'Usuários',      icon: <IconUsers /> },
+  { to: '/admin/departments', label: 'Departamentos', icon: <IconBuilding /> },
+  { to: '/admin/workflows',   label: 'Workflows',     icon: <IconGear /> },
+  { to: '/admin/webhooks',    label: 'Webhooks',      icon: <IconWebhook /> },
+]
+
 export default function Sidebar({ pinned, onTogglePin }) {
   const user           = useAuthStore(s => s.user)
-  const demandTypes    = useDemandTypeStore(s => s.demandTypes)
-  const isLoadingTypes = useDemandTypeStore(s => s.isLoading)
-  const isAdmin        = user && ADMIN_ROLES.includes(user.role)
+  const isAdmin         = user && ADMIN_ROLES.includes(user.role)
   const chatChannels   = useChatStore(s => s.channels)
   const chatUnread     = chatChannels.reduce((sum, c) => sum + (c.unread_count ?? 0), 0)
   const navigate       = useNavigate()
 
   const [isOpen,             setIsOpen]             = useState(false)
-  const [showNewDemandModal, setShowNewDemandModal] = useState(false)
   const [areas,              setAreas]              = useState([])
   const [areasOpen,          setAreasOpen]          = useState(true)
   const [expandedAreas,      setExpandedAreas]      = useState({})
@@ -53,15 +61,6 @@ export default function Sidebar({ pinned, onTogglePin }) {
   }, [pinned])
 
   const visible = isOpen || pinned
-
-  // Agrupa tipos por departamento
-  const grouped = demandTypes.reduce((acc, dt) => {
-    const key = dt.department_name ?? 'Geral'
-    if (!acc[key]) acc[key] = []
-    acc[key].push(dt)
-    return acc
-  }, {})
-  const hasMultipleDepts = Object.keys(grouped).length > 1
 
   function toggleArea(id) {
     setExpandedAreas(prev => ({ ...prev, [id]: !prev[id] }))
@@ -112,51 +111,14 @@ export default function Sidebar({ pinned, onTogglePin }) {
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto px-2 py-4">
 
-          {/* Nova Demanda */}
-          <button
-            type="button"
-            onClick={() => setShowNewDemandModal(true)}
-            className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-lg
-                       bg-primary-600 px-3 py-2 text-sm font-semibold text-white
-                       shadow-sm shadow-primary-600/20
-                       transition-all hover:bg-primary-700 hover:shadow-md hover:shadow-primary-600/25 active:scale-[0.98]
-                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1"
-          >
-            <span aria-hidden="true">+</span>
-            Nova Demanda
-          </button>
-
-          <SectionLabel className="mt-3">Quadros</SectionLabel>
-
-          {isLoadingTypes && (
-            <div className="space-y-1 px-1">
-              {[1,2,3].map(i => <div key={i} className="h-8 animate-pulse rounded-lg bg-gray-100" />)}
-            </div>
-          )}
-
-          {!isLoadingTypes && demandTypes.length === 0 && (
-            <p className="px-3 py-1 text-xs text-gray-400">Nenhum tipo de demanda disponível.</p>
-          )}
-
-          {!isLoadingTypes && Object.entries(grouped).map(([deptName, types]) => (
-            <div key={deptName}>
-              {hasMultipleDepts && (
-                <p className="mt-2 mb-0.5 px-3 text-xs text-gray-400 truncate" title={deptName}>{deptName}</p>
-              )}
-              {types.map(dt => (
-                <NavItem key={dt.id} to={`/board/${dt.id}`} label={dt.name} icon={<IconBoard />} />
-              ))}
-            </div>
-          ))}
-
-          {/* Áreas */}
-          <div className="mt-4">
+          {/* Departamentos (antigas "Áreas" — mesmo conceito, ver Track R2) */}
+          <div>
             <button
               type="button"
               onClick={() => setAreasOpen(o => !o)}
               className="flex w-full items-center justify-between px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-gray-600"
             >
-              <span>Áreas</span>
+              <span>Departamentos</span>
               <svg className={`h-3 w-3 transition-transform ${areasOpen ? 'rotate-90' : ''}`} viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M7.293 4.293a1 1 0 011.414 0L14.414 10l-5.707 5.707a1 1 0 01-1.414-1.414L11.586 10 7.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
@@ -165,7 +127,7 @@ export default function Sidebar({ pinned, onTogglePin }) {
             {areasOpen && (
               <div className="mt-0.5 space-y-0.5">
                 {areas.length === 0 && (
-                  <p className="px-3 py-1 text-xs text-gray-400 italic">Nenhuma área.</p>
+                  <p className="px-3 py-1 text-xs text-gray-400 italic">Nenhum departamento.</p>
                 )}
                 {areas.map(area => (
                   <div key={area.id}>
@@ -216,11 +178,21 @@ export default function Sidebar({ pinned, onTogglePin }) {
                   <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
-                  Gerenciar áreas
+                  Gerenciar departamentos
                 </button>
               </div>
             )}
           </div>
+
+          {/* Administração */}
+          {isAdmin && (
+            <div className="mt-4">
+              <SectionLabel>Administração</SectionLabel>
+              {ADMIN_ITEMS.map(item => (
+                <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} />
+              ))}
+            </div>
+          )}
         </nav>
 
         {/* Atalhos fixos */}
@@ -245,10 +217,6 @@ export default function Sidebar({ pinned, onTogglePin }) {
           )}
         </div>
       </aside>
-
-      {showNewDemandModal && (
-        <NewDemandModal onClose={() => setShowNewDemandModal(false)} />
-      )}
     </>
   )
 }
@@ -323,10 +291,42 @@ function IconChat() {
   )
 }
 
-function IconBoard() {
+function IconChart() {
   return (
     <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M2 4a1 1 0 011-1h3a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zm6 0a1 1 0 011-1h3a1 1 0 011 1v7a1 1 0 01-1 1H9a1 1 0 01-1-1V4zm7-1a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V4a1 1 0 00-1-1h-1z" />
+      <path d="M15.5 2A1.5 1.5 0 0014 3.5v13a1.5 1.5 0 003 0v-13A1.5 1.5 0 0015.5 2zM9.5 6A1.5 1.5 0 008 7.5v9a1.5 1.5 0 003 0v-9A1.5 1.5 0 009.5 6zM3.5 10A1.5 1.5 0 002 11.5v5a1.5 1.5 0 003 0v-5A1.5 1.5 0 003.5 10z" />
+    </svg>
+  )
+}
+
+function IconUsers() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+    </svg>
+  )
+}
+
+function IconBuilding() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h2v2H7V5zm0 4h2v2H7V9zm0 4h2v2H7v-2zm4-8h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
+function IconGear() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
+function IconWebhook() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
     </svg>
   )
 }

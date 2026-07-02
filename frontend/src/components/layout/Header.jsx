@@ -5,31 +5,16 @@ import { useNotificationStore }         from '../../stores/notificationStore'
 import { useTheme }                     from '../../hooks/useTheme'
 import IdeaModal                        from '../shared/IdeaModal'
 
-const ADMIN_ROLES = ['dept_admin', 'super_admin']
-
-const ADMIN_ITEMS = [
-  { to: '/dashboard',         label: 'Dashboard',    icon: <IconChart /> },
-  { to: '/comercial',         label: 'Comercial',    icon: <IconBriefcase /> },
-  { to: '/admin/users',       label: 'Usuários',     icon: <IconUsers /> },
-  { to: '/admin/departments', label: 'Departamentos',icon: <IconBuilding /> },
-  { to: '/admin/tags',        label: 'Tags',         icon: <IconTag /> },
-  { to: '/admin/workflows',   label: 'Workflows',    icon: <IconGear /> },
-  { to: '/admin/webhooks',    label: 'Webhooks',     icon: <IconWebhook /> },
-  { to: '/admin/assets',      label: 'Pontos',       icon: <IconPin /> },
-  { to: '/admin/campaigns',   label: 'Ocupação',     icon: <IconCalendar /> },
-  { to: '/admin/occupancy',   label: 'Grade',        icon: <IconGrid /> },
-  { to: '/admin/map',         label: 'Mapa',         icon: <IconMap />, roles: ['super_admin', 'dept_admin'] },
-  { to: '/admin/recurring',   label: 'Recorrências', icon: <IconRepeat /> },
-  { to: '/admin/audit',       label: 'Auditoria',    icon: <IconAudit /> },
-  { to: '/tv',                label: 'Modo TV',      icon: <IconTv /> },
-]
+// O antigo dropdown "Administração" (engrenagem) saiu daqui — Dashboard/
+// Usuários/Departamentos/Workflows/Webhooks foram promovidos pra Sidebar,
+// o resto foi pro backlog (rotas continuam vivas, só sem entrada de menu).
+// Ver Track R1 em docs/superpowers/plans/2026-07-02-one-asana-refocus.md.
 
 export default function Header({ onToggleSidebar, sidebarPinned }) {
   const navigate = useNavigate()
   const user     = useAuthStore(s => s.user)
   const logout   = useAuthStore(s => s.logout)
   const { dark, toggle: toggleDark } = useTheme()
-  const isAdmin  = user && ADMIN_ROLES.includes(user.role)
 
   const notifications = useNotificationStore(s => s.notifications)
   const unreadCount   = useNotificationStore(s => s.unreadCount)
@@ -38,15 +23,12 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
 
   const [notifOpen,     setNotifOpen]     = useState(false)
   const [userOpen,      setUserOpen]      = useState(false)
-  const [adminOpen,     setAdminOpen]     = useState(false)
   const [showIdeaModal, setShowIdeaModal] = useState(false)
-  const adminHideTimer = useRef(null)
 
   const notifRef   = useRef(null)
   const bellRef    = useRef(null)
   const userRef    = useRef(null)
   const userBtnRef = useRef(null)
-  const adminRef   = useRef(null)
 
   // Ctrl+K → /search
   useEffect(() => {
@@ -82,15 +64,6 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
     document.addEventListener('keydown', onKey)
     return () => { document.removeEventListener('pointerdown', handler); document.removeEventListener('keydown', onKey) }
   }, [userOpen])
-
-  function openAdmin() {
-    clearTimeout(adminHideTimer.current)
-    setAdminOpen(true)
-  }
-  function closeAdmin() {
-    adminHideTimer.current = setTimeout(() => setAdminOpen(false), 150)
-  }
-  useEffect(() => () => clearTimeout(adminHideTimer.current), [])
 
   return (
     <header className={`flex h-14 flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 transition-[margin] duration-200 ease-in-out ${sidebarPinned ? 'ml-56' : 'ml-0'}`}>
@@ -132,56 +105,6 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
             Ctrl+K
           </kbd>
         </Link>
-
-        {/* Admin grid (hover) — só para admins */}
-        {isAdmin && (
-          <div
-            className="relative"
-            onMouseEnter={openAdmin}
-            onMouseLeave={closeAdmin}
-          >
-            <button
-              ref={adminRef}
-              className={`relative rounded-lg p-1.5 transition-colors
-                         hover:bg-gray-100
-                         focus:outline-none focus:ring-2 focus:ring-primary-500
-                         ${adminOpen ? 'bg-gray-100 text-primary-600' : 'text-gray-500'}`}
-              title="Administração"
-            >
-              <IconAdminGrid className="h-5 w-5" />
-            </button>
-
-            {adminOpen && (
-              <div
-                ref={adminRef}
-                className="absolute right-0 top-full z-50 mt-1.5 w-72
-                           rounded-xl border border-gray-200
-                           bg-white shadow-[0_20px_40px_-15px_rgba(37,99,235,0.2)] p-3"
-              >
-                <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Administração</p>
-                <div className="grid grid-cols-3 gap-1">
-                  {ADMIN_ITEMS.filter(item => !item.roles || item.roles.includes(user.role)).map(item => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setAdminOpen(false)}
-                      className={({ isActive }) =>
-                        `flex flex-col items-center gap-1 rounded-lg px-2 py-2.5 text-center transition-colors
-                        ${isActive
-                          ? 'bg-primary-50 text-primary-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`
-                      }
-                    >
-                      <span className="text-current">{item.icon}</span>
-                      <span className="text-[10px] font-medium leading-tight">{item.label}</span>
-                    </NavLink>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Sino de notificações */}
         <div className="relative">
@@ -434,14 +357,6 @@ function IconSearch({ className }) {
   )
 }
 
-function IconAdminGrid({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-    </svg>
-  )
-}
-
 function IconBell({ className }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="currentColor">
@@ -497,20 +412,3 @@ function IconLogout({ className }) {
     </svg>
   )
 }
-
-// ── Ícones do grid de admin ───────────────────────────────────────────────────
-
-function IconChart() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M15.5 2A1.5 1.5 0 0014 3.5v13a1.5 1.5 0 003 0v-13A1.5 1.5 0 0015.5 2zM9.5 6A1.5 1.5 0 008 7.5v9a1.5 1.5 0 003 0v-9A1.5 1.5 0 009.5 6zM3.5 10A1.5 1.5 0 002 11.5v5a1.5 1.5 0 003 0v-5A1.5 1.5 0 003.5 10z" /></svg> }
-function IconBriefcase() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.586a1 1 0 01-.293.707l-6.293 6.293a1 1 0 01-1.414 0L5.707 11.293A1 1 0 015.414 10.586V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm5 3H7v2.414l5 5 5-5V8z" clipRule="evenodd" /></svg> }
-function IconUsers() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg> }
-function IconBuilding() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h2v2H7V5zm0 4h2v2H7V9zm0 4h2v2H7v-2zm4-8h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2z" clipRule="evenodd" /></svg> }
-function IconTag() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M17.707 9.293a1 1 0 000-1.414l-7-7a1 1 0 00-.707-.293H4a2 2 0 00-2 2v6a1 1 0 00.293.707l7 7a1 1 0 001.414 0l7-7zM5.5 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" clipRule="evenodd" /></svg> }
-function IconGear() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg> }
-function IconWebhook() { return <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg> }
-function IconPin() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg> }
-function IconCalendar() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg> }
-function IconGrid() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg> }
-function IconRepeat() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" /></svg> }
-function IconAudit() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg> }
-function IconTv() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm4 10a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg> }
-function IconMap() { return <svg className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round"><path d="M7 3L3 4.5v12L7 15l6 1.5 4-1.5v-12l-4 1.5-6-1.5z" /><path d="M7 3v12M13 4.5v12" /></svg> }
