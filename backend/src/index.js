@@ -31,6 +31,7 @@ import tagsRoutes           from '#routes/tags.routes.js'
 import departmentsRoutes    from '#routes/departments.routes.js'
 import chatRoutes           from '#routes/chat.routes.js'
 import assetsRoutes         from '#routes/assets.routes.js'
+import ideasRoutes          from '#routes/ideas.routes.js'
 import externalRoutes       from '#routes/external.routes.js'
 import campaignsRoutes      from '#routes/campaigns.routes.js'
 import portfoliosRoutes     from '#routes/portfolios.routes.js'
@@ -115,6 +116,7 @@ app.use('/api/tags',           tagsRoutes)
 app.use('/api/departments',    departmentsRoutes)
 app.use('/api/chat',           chatRoutes)
 app.use('/api/assets',         assetsRoutes)
+app.use('/api/ideas',          ideasRoutes)
 app.use('/api/external',       externalRoutes)   // PÚBLICO — segurança via token opaco
 app.use('/api/intake',         intakeRoutes)      // PÚBLICO — formulário de intake tokenizado
 app.use('/api/campaigns',      campaignsRoutes)

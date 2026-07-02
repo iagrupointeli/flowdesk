@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore }                 from '../../stores/authStore'
 import { useNotificationStore }         from '../../stores/notificationStore'
 import { useTheme }                     from '../../hooks/useTheme'
+import IdeaModal                        from '../shared/IdeaModal'
 
 const ADMIN_ROLES = ['dept_admin', 'super_admin']
 
@@ -35,9 +36,10 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
   const hasMore       = useNotificationStore(s => s.hasMore)
   const isLoading     = useNotificationStore(s => s.isLoading)
 
-  const [notifOpen,  setNotifOpen]  = useState(false)
-  const [userOpen,   setUserOpen]   = useState(false)
-  const [adminOpen,  setAdminOpen]  = useState(false)
+  const [notifOpen,     setNotifOpen]     = useState(false)
+  const [userOpen,      setUserOpen]      = useState(false)
+  const [adminOpen,     setAdminOpen]     = useState(false)
+  const [showIdeaModal, setShowIdeaModal] = useState(false)
   const adminHideTimer = useRef(null)
 
   const notifRef   = useRef(null)
@@ -93,14 +95,25 @@ export default function Header({ onToggleSidebar, sidebarPinned }) {
   return (
     <header className={`flex h-14 flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 transition-[margin] duration-200 ease-in-out ${sidebarPinned ? 'ml-56' : 'ml-0'}`}>
 
-      {/* Esquerda — menu toggle */}
-      <button
-        onClick={onToggleSidebar}
-        title={sidebarPinned ? 'Recolher sidebar' : 'Fixar sidebar'}
-        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-      >
-        <IconMenu />
-      </button>
+      {/* Esquerda — menu toggle + ideias */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={onToggleSidebar}
+          title={sidebarPinned ? 'Recolher sidebar' : 'Fixar sidebar'}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+        >
+          <IconMenu />
+        </button>
+        <button
+          onClick={() => setShowIdeaModal(true)}
+          title="Tive uma ideia"
+          className="group rounded-lg p-2 text-gray-400 transition-colors hover:bg-amber-50"
+        >
+          <IconLightbulb className="h-5 w-5 transition-colors group-hover:text-amber-500" />
+        </button>
+      </div>
+
+      {showIdeaModal && <IdeaModal onClose={() => setShowIdeaModal(false)} />}
 
       {/* Direita */}
       <div className="flex items-center gap-2">
@@ -401,6 +414,14 @@ function IconMenu() {
   return (
     <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
       <path fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 5A.75.75 0 012.75 9h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 9.75zm0 5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
+function IconLightbulb({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M10 2a6 6 0 00-3.815 10.631C7.237 13.516 7.5 14.386 7.5 15v.5A1.5 1.5 0 009 17h2a1.5 1.5 0 001.5-1.5V15c0-.614.263-1.484 1.315-2.369A6 6 0 0010 2zM8.5 18.5A.5.5 0 019 18h2a.5.5 0 01.5.5v.25a.75.75 0 01-.75.75h-2a.75.75 0 01-.75-.75v-.25z" clipRule="evenodd" />
     </svg>
   )
 }
