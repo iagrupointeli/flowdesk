@@ -348,6 +348,29 @@ before implementation.
 Integrate grupointeli webmail into InteliONE. Ruan flagged this one himself
 as later-horizon, unlike F1–F3.
 
+### F5. Idea funnel / innovation board (Ruan called this one out as "MANEIRA")
+Any user can submit ideas into a shared board. A ranking surfaces the users
+whose ideas were most brilliant / most valuable-to-the-group over time
+(gamification — visible recognition, not just a suggestion box that goes
+nowhere). Goal stated explicitly: unify scattered tooling/process ideas that
+today live across 40+ brands into decisions for InteliONE itself.
+
+**The AI layer (clustering ideas, detecting connections/overlap between
+submissions, improving/rewriting rough ideas) is explicitly deferred to
+future** — Ruan's own words. Two build phases, don't conflate them:
+- **Now (if built):** plain CRUD — submit idea, upvote/react, comment,
+  manual tagging by an admin, ranking derived from vote counts. Zero AI,
+  fits the free-tier thesis exactly like everything else in this roadmap.
+- **Later (AI layer):** this is the first roadmap item where "AI" means
+  more than dev-time code generation — it's runtime analysis of user-
+  submitted text. When this phase actually gets scoped, the zero-runtime-
+  LLM thesis needs an explicit decision, not a default: batch/async
+  analysis (e.g. nightly clustering job, still no per-request cost) keeps
+  the free-tier promise; a live "AI reviews your idea as you type" feature
+  would break it and needs Ruan's sign-off first, same as the ai-monitor/
+  Ollama option noted below. Don't build this half without that decision
+  made explicitly.
+
 ---
 
 ## Deferred / explicitly out of scope for now
