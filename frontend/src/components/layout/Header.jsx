@@ -17,7 +17,7 @@ const ADMIN_ITEMS = [
   { to: '/admin/assets',      label: 'Pontos',       icon: <IconPin /> },
   { to: '/admin/campaigns',   label: 'Ocupação',     icon: <IconCalendar /> },
   { to: '/admin/occupancy',   label: 'Grade',        icon: <IconGrid /> },
-  { to: '/admin/map',         label: 'Mapa',         icon: <IconMap />, roles: ['super_admin'] },
+  { to: '/admin/map',         label: 'Mapa',         icon: <IconMap />, roles: ['super_admin', 'dept_admin'] },
   { to: '/admin/recurring',   label: 'Recorrências', icon: <IconRepeat /> },
   { to: '/admin/audit',       label: 'Auditoria',    icon: <IconAudit /> },
   { to: '/tv',                label: 'Modo TV',      icon: <IconTv /> },
