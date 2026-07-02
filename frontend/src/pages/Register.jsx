@@ -34,7 +34,7 @@ export default function Register() {
 
   // ── Redireciona se já autenticado ───────────────────────────────────────────
   if (accessToken && user) {
-    return <Navigate to="/board" replace />
+    return <Navigate to="/home" replace />
   }
 
   // ── Submit ──────────────────────────────────────────────────────────────────

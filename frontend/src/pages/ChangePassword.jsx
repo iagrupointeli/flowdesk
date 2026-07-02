@@ -11,9 +11,9 @@ import api from '../lib/api'
  *
  * Auto-guardas:
  *   - Não autenticado → /login
- *   - Já trocou a senha → /board
+ *   - Já trocou a senha → /home
  *
- * Após sucesso: patchUser({ requires_password_change: false }) + navega para /board.
+ * Após sucesso: patchUser({ requires_password_change: false }) + navega para /home.
  */
 export default function ChangePassword() {
   const accessToken = useAuthStore(s => s.accessToken)
@@ -28,7 +28,7 @@ export default function ChangePassword() {
   const [isLoading,       setIsLoading]       = useState(false)
 
   if (!accessToken || !user) return <Navigate to="/login" replace />
-  if (!user.requires_password_change) return <Navigate to="/board" replace />
+  if (!user.requires_password_change) return <Navigate to="/home" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -47,7 +47,7 @@ export default function ChangePassword() {
     try {
       await api.patch('/users/me/password', { currentPassword, newPassword })
       patchUser({ requires_password_change: false })
-      navigate('/board', { replace: true })
+      navigate('/home', { replace: true })
     } catch (err) {
       const msg = err?.response?.data?.error
       setError(msg ?? 'Erro ao alterar a senha. Tente novamente.')

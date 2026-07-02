@@ -6,10 +6,10 @@ import { useAuthStore } from '../stores/authStore'
  * Página de Login.
  *
  * Comportamento:
- *  - Se já autenticado → redireciona para /board (evita re-login desnecessário)
+ *  - Se já autenticado → redireciona para /home (evita re-login desnecessário)
  *  - Erros HTTP são mapeados para mensagens legíveis, sem vazar detalhes técnicos
  *  - Após login bem-sucedido, redireciona para `location.state.from` (rota que
- *    tentou ser acessada antes do redirecionamento pelo ProtectedRoute) ou /board
+ *    tentou ser acessada antes do redirecionamento pelo ProtectedRoute) ou /home
  */
 export default function Login() {
   const accessToken = useAuthStore(s => s.accessToken)
@@ -18,7 +18,7 @@ export default function Login() {
 
   const navigate = useNavigate()
   const location = useLocation()
-  const from            = location.state?.from?.pathname || '/board'
+  const from            = location.state?.from?.pathname || '/home'
   const successMessage  = location.state?.successMessage ?? null
 
   const [email,     setEmail]     = useState('')

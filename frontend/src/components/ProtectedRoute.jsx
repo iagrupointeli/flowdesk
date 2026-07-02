@@ -22,7 +22,7 @@ import { useAuthStore } from '../stores/authStore'
  *          → ProtectedRoute deixa passar normalmente
  *
  *   3. RBAC opcional: se `roles` for fornecido e o role do usuário não estiver
- *      na lista → /board (não expõe a tela restrita)
+ *      na lista → /home (não expõe a tela restrita)
  *
  *   4. Tudo ok → renderiza <Outlet/> (rotas filhas)
  *
@@ -47,7 +47,7 @@ export default function ProtectedRoute({ roles }) {
 
   // ── Guarda 3: RBAC — role insuficiente ──────────────────────────────────
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/board" replace />
+    return <Navigate to="/home" replace />
   }
 
   return <Outlet />

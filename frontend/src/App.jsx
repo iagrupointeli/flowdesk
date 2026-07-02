@@ -12,6 +12,7 @@ const Register       = lazy(() => import('./pages/Register'))
 const FirstAccess    = lazy(() => import('./pages/FirstAccess'))
 const ChangePassword = lazy(() => import('./pages/ChangePassword'))
 const AppLayout      = lazy(() => import('./components/layout/AppLayout'))
+const HomeHub        = lazy(() => import('./pages/HomeHub'))
 const Board          = lazy(() => import('./pages/Board'))
 const NewDemand      = lazy(() => import('./pages/NewDemand'))
 const DemandDetail   = lazy(() => import('./pages/DemandDetail'))
@@ -97,8 +98,9 @@ export default function App() {
             </Route>
 
             <Route element={<AppLayout />}>
-              {/* Rota raiz → board */}
-              <Route index element={<Navigate to="/board" replace />} />
+              {/* Rota raiz → tela inicial de acessos (Track R1, 2026-07-02) */}
+              <Route index element={<Navigate to="/home" replace />} />
+              <Route path="/home" element={<HomeHub />} />
 
               {/* Kanban */}
               <Route path="/board/:demandTypeId" element={<Board />} />
