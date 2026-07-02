@@ -55,8 +55,26 @@ export default function HomeHub() {
   function handleToggleFavorite(key, current) {
     setLayout(prev => {
       if (!prev) return prev
-      const items  = prev.items.map(i => i.key === key ? { ...i, isFavorited: !current } : i)
       const states = prev.states.map(s => s.key === key ? { ...s, isFavorited: !current } : s)
+      const isState = prev.states.some(s => s.key === key)
+
+      let items
+      if (!isState) {
+        // Item comum (interno/site/pasta): sempre visível, só alterna a flag.
+        items = prev.items.map(i => i.key === key ? { ...i, isFavorited: !current } : i)
+      } else if (!current) {
+        // Estado virando favorito: entra na grade principal (cópia, não sai
+        // da pasta). Evita duplicar se já estiver lá por algum motivo.
+        const favoritedState = states.find(s => s.key === key)
+        items = prev.items.some(i => i.key === key)
+          ? prev.items.map(i => i.key === key ? { ...i, isFavorited: true } : i)
+          : [...prev.items, favoritedState]
+      } else {
+        // Estado deixando de ser favorito: sai da grade principal, continua
+        // navegável dentro da pasta.
+        items = prev.items.filter(i => i.key !== key)
+      }
+
       return { items, states }
     })
     api.post('/home/favorite', { key, favorited: !current }).catch(() => {
