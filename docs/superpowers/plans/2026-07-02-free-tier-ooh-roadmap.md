@@ -327,12 +327,15 @@ browsable in the folder as well). Two ordering modes: auto (folder →
 favorited → Ruan's starred picks → rest) until the user drags anything via
 "Configurar", then pure manual position from then on.
 
-**Follow-up needed from Ruan — 11 state sites not seeded:** verified all 27
-state URLs against the `{uf}outdoor.com.br` pattern before seeding (a
-foolproof button that 404s isn't foolproof). Only 16 resolved: AL, BA, CE,
-ES, MA, MT, MG, PA, PR, PE, RJ, RN, RS, SC, SP, TO. These do NOT resolve
-and are missing from the hub until Ruan supplies the real URL or confirms
-no site exists yet: **AC, AP, AM, DF, GO, MS, PB, PI, RO, RR, SE.**
+✅ **All 27 states + DF resolved, 2026-07-02.** 16 individual state sites
+(pattern `{uf}outdoor.com.br`, RS exception `rgoutdoor.com.br`) + 3
+consolidated regional sites Ruan supplied for states without their own:
+`norteoutdoor.com.br` (AC/AP/AM/RO/RR), `dfgoias.com.br` (DF/Goiás/MS —
+page content confirms all three, not just DF+GO as the domain name
+suggests), `nordesteoutdoor.com.br` (PB/PI/SE — the Nordeste states that
+didn't already have individual sites). All verified live (200) and,
+for the two ambiguous consolidated ones, content-checked against the
+actual state names before trusting the domain name.
 
 Also not built yet (mentioned by Ruan, out of v1 scope): click-based
 popularity ranking (superseded for now by the explicit favorite/drag model,
