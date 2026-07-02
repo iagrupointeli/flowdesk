@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useChatStore }     from '../../stores/chatStore'
 import { useAuthStore }     from '../../stores/authStore'
 import NewChatModal         from '../../components/chat/NewChatModal'
+import UserProfileModal     from '../../components/chat/UserProfileModal'
 import FilePreviewModal     from '../../components/shared/FilePreviewModal'
 import api                  from '../../lib/api'
 
@@ -13,6 +14,7 @@ export default function ChatLayout() {
   const setActiveChannel = useChatStore(s => s.setActiveChannel)
   const disconnectSocket = useChatStore(s => s.disconnectSocket)
   const [showNewChat, setShowNewChat] = useState(false)
+  const activeChannel = channels.find(c => c.id === activeChannelId) ?? null
 
   useEffect(() => {
     initSocket()
@@ -83,7 +85,7 @@ export default function ChatLayout() {
       {/* ── Painel direito: mensagens ─────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden bg-gray-50">
         {activeChannelId
-          ? <ChatPanel channelId={activeChannelId} />
+          ? <ChatPanel channelId={activeChannelId} channel={activeChannel} />
           : (
             <div className="flex flex-1 items-center justify-center">
               <p className="text-sm text-gray-400">Selecione uma conversa.</p>
@@ -104,7 +106,7 @@ export default function ChatLayout() {
 
 // ── ChatPanel ────────────────────────────────────────────────────────────────
 
-function ChatPanel({ channelId }) {
+function ChatPanel({ channelId, channel }) {
   const myId          = useAuthStore(s => s.user?.id)
   const messages      = useChatStore(s => s.messagesByChannel[channelId] ?? [])
   const typingUsers   = useChatStore(s => s.typingByChannel[channelId] ?? {})
@@ -113,12 +115,16 @@ function ChatPanel({ channelId }) {
   const fetchMessages = useChatStore(s => s.fetchMessages)
   const deleteMessage = useChatStore(s => s.deleteMessage)
 
-  const [body,        setBody]        = useState('')
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadError, setUploadError] = useState(null)
+  const [body,          setBody]          = useState('')
+  const [isUploading,   setIsUploading]   = useState(false)
+  const [uploadError,   setUploadError]   = useState(null)
+  const [profileUserId, setProfileUserId] = useState(null)
   const bottomRef   = useRef(null)
   const typingTimer = useRef(null)
   const fileInputRef = useRef(null)
+
+  const headerName = channel?.type === 'dm' ? (channel?.peer_name ?? 'Conversa') : (channel?.name ?? 'Conversa')
+  const isClickableHeader = channel?.type === 'dm' && !!channel?.peer_id
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -189,6 +195,37 @@ function ChatPanel({ channelId }) {
 
   return (
     <>
+      {/* Cabeçalho da conversa */}
+      <div className="flex items-center gap-2.5 border-b border-gray-200 bg-white px-4 py-3">
+        {isClickableHeader
+          ? (
+            <button
+              onClick={() => setProfileUserId(channel.peer_id)}
+              className="flex items-center gap-2.5 rounded-lg px-1 py-0.5 -mx-1 transition-colors hover:bg-gray-50"
+            >
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center
+                               rounded-full bg-primary-100 text-xs font-semibold text-primary-700">
+                {headerName[0]?.toUpperCase()}
+              </span>
+              <span className="text-sm font-semibold text-gray-800">{headerName}</span>
+            </button>
+          )
+          : (
+            <>
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center
+                               rounded-full bg-primary-100 text-xs font-semibold text-primary-700">
+                {headerName[0]?.toUpperCase()}
+              </span>
+              <span className="text-sm font-semibold text-gray-800">{headerName}</span>
+            </>
+          )
+        }
+      </div>
+
+      {profileUserId && (
+        <UserProfileModal userId={profileUserId} onClose={() => setProfileUserId(null)} />
+      )}
+
       {/* Mensagens */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
         {messages.map(msg => {

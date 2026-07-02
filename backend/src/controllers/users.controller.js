@@ -166,6 +166,19 @@ export async function getMe(req, res) {
 }
 
 /**
+ * GET /api/users/:id
+ * Perfil público — qualquer usuário autenticado pode ver (usado no chat).
+ */
+export async function getPublicProfile(req, res) {
+  try {
+    const user = await usersService.getPublicProfile(req.params.id)
+    return res.json(user)
+  } catch (err) {
+    return res.status(err.status ?? 500).json({ error: err.message })
+  }
+}
+
+/**
  * PATCH /api/users/me/notifications
  * Body: { notify_email?, notify_platform? }
  */

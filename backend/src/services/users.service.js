@@ -417,6 +417,30 @@ export async function getMe(userId) {
   return rows[0]
 }
 
+// ─── Perfil público (visto por qualquer usuário autenticado, ex: no chat) ──────
+// Sem notify_email/notify_platform/requires_password_change — são preferências
+// privadas, não fazem sentido no perfil de terceiros.
+export async function getPublicProfile(userId) {
+  const { rows } = await query(
+    `SELECT u.id, u.name, u.email, u.role,
+            COALESCE(
+              json_agg(
+                json_build_object('id', d.id, 'name', d.name, 'is_primary', ud.is_primary)
+                ORDER BY ud.is_primary DESC
+              ) FILTER (WHERE d.id IS NOT NULL),
+              '[]'
+            ) AS departments
+     FROM users u
+     LEFT JOIN user_departments ud ON ud.user_id = u.id
+     LEFT JOIN departments d ON d.id = ud.department_id
+     WHERE u.id = $1 AND u.deactivated_at IS NULL
+     GROUP BY u.id`,
+    [userId]
+  )
+  if (!rows[0]) throw Object.assign(new Error('Usuário não encontrado.'), { status: 404 })
+  return rows[0]
+}
+
 export async function updateMe(userId, data) {
   const { notify_email, notify_platform } = data
   const { rows } = await query(

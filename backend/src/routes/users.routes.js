@@ -14,6 +14,12 @@ router.get('/search',              authenticate,                                
 router.patch('/me/notifications',  authenticate,                                     usersCtrl.updateMe)
 router.patch('/me/password',       authenticate,                                     usersCtrl.changePassword)
 
+// ── Perfil público de terceiros (ex: clicar num nome no chat) ────────────────
+// Qualquer usuário autenticado pode ver — não é gestão admin, por isso sem
+// authorize() aqui. Precisa vir antes das rotas /:id de baixo (mesmo método
+// GET, então a ordem de declaração decide).
+router.get('/:id',                 authenticate,                                     usersCtrl.getPublicProfile)
+
 // ── Gestão de usuários (admin) ────────────────────────────────────────────────
 
 router.get(

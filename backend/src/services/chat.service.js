@@ -89,6 +89,7 @@ export async function getUserChannels(userId) {
     `SELECT
        c.id, c.type, c.name, c.department_id,
        cm.role AS my_role,
+       dm_peer.id   AS peer_id,
        dm_peer.name AS peer_name,
        -- última mensagem (preview)
        lm.id         AS last_msg_id,
@@ -106,7 +107,7 @@ export async function getUserChannels(userId) {
      FROM chat_members cm
      JOIN chat_channels c ON c.id = cm.channel_id
      LEFT JOIN LATERAL (
-       SELECT u2.name
+       SELECT u2.id, u2.name
        FROM chat_members cm2
        JOIN users u2 ON u2.id = cm2.user_id
        WHERE cm2.channel_id = c.id AND cm2.user_id <> $1
