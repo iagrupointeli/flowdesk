@@ -318,13 +318,26 @@ the roadmap yet — capturing before detail is lost. All fit the free-tier
 thesis (deterministic code, no runtime LLM).
 
 ### F1. Central hub homepage
-Landing page after login: a panel with every tool/platform a collaborator has
-access to, including external/decentralized ones not yet absorbed into
-InteliONE (buttons/links out to them). Explicit direction: over time, absorb
-more of those tools INTO InteliONE rather than just link out — this is the
-transitional version. Same page doubles as the "centralize communication"
-hub — one place with every access link instead of scattered across chats/
-docs/bookmarks.
+✅ **DONE 2026-07-02, commit `2cf83a9`.** `/home` replaces `/board` as the
+post-login landing. Phone-home-screen model: everything (internal +
+external links) is one flat drag-reorderable grid, plus an "Estados" folder
+holding all regional OOH sites. Any item can be favorited — for a state
+inside the folder, favoriting duplicates it as a top-level card too (stays
+browsable in the folder as well). Two ordering modes: auto (folder →
+favorited → Ruan's starred picks → rest) until the user drags anything via
+"Configurar", then pure manual position from then on.
+
+**Follow-up needed from Ruan — 11 state sites not seeded:** verified all 27
+state URLs against the `{uf}outdoor.com.br` pattern before seeding (a
+foolproof button that 404s isn't foolproof). Only 16 resolved: AL, BA, CE,
+ES, MA, MT, MG, PA, PR, PE, RJ, RN, RS, SC, SP, TO. These do NOT resolve
+and are missing from the hub until Ruan supplies the real URL or confirms
+no site exists yet: **AC, AP, AM, DF, GO, MS, PB, PI, RO, RR, SE.**
+
+Also not built yet (mentioned by Ruan, out of v1 scope): click-based
+popularity ranking (superseded for now by the explicit favorite/drag model,
+which is more predictable) — could still layer on top later as a passive
+signal without changing the current UX contract.
 
 ### F2. Concrete user hierarchy
 Today's roles (`super_admin` / `dept_admin` / `user`) are a flat RBAC tier,
