@@ -7,9 +7,10 @@ function handleError(err, res) {
 }
 
 // GET /api/chat/users  — colegas de departamento disponíveis para chat
+// (super_admin não é escopado por departamento — vê a holding inteira)
 export async function listChatableUsers(req, res) {
   try {
-    return res.json(await chatService.getChatableUsers(req.user.id, req.user.deptIds))
+    return res.json(await chatService.getChatableUsers(req.user.id, req.user.deptIds, req.user.role))
   } catch (err) { return handleError(err, res) }
 }
 

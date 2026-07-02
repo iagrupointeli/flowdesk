@@ -53,8 +53,21 @@ export async function assertMember(channelId, userId) {
 }
 
 // ── getChatableUsers ──────────────────────────────────────────────────────────
-// Retorna usuários ativos nos mesmos departamentos do solicitante (exceto ele mesmo)
-export async function getChatableUsers(userId, deptIds) {
+// Retorna usuários ativos nos mesmos departamentos do solicitante (exceto ele
+// mesmo). super_admin não é escopado por departamento — vê a holding inteira,
+// inclusive contas (como a do próprio Ruan) sem nenhum departamento atribuído.
+export async function getChatableUsers(userId, deptIds, role) {
+  if (role === 'super_admin') {
+    const { rows } = await query(
+      `SELECT u.id, u.name, u.email, NULL::uuid AS department_id
+       FROM users u
+       WHERE u.id <> $1
+         AND u.deactivated_at IS NULL
+       ORDER BY u.name`,
+      [userId]
+    )
+    return rows
+  }
   if (!deptIds?.length) return []
   const placeholders = deptIds.map((_, i) => `$${i + 2}`).join(', ')
   const { rows } = await query(
