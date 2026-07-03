@@ -3,6 +3,7 @@ node_modules/
 dist/
 build/
 *.log
+deploy/
 
 # Config local (Claude Code) — não é do projeto
 .claude/settings.local.json

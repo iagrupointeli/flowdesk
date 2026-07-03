@@ -111,6 +111,11 @@ export default function Sidebar({ pinned, onTogglePin }) {
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto px-2 py-4">
 
+          {/* Início (Home Hub) */}
+          <div className="mb-2">
+            <NavItem to="/home" label="Início" icon={<IconHome />} />
+          </div>
+
           {/* Departamentos (antigas "Áreas" — mesmo conceito, ver Track R2) */}
           <div>
             <button
@@ -270,6 +275,14 @@ function IconPinFilled() {
   return (
     <svg className="h-4 w-4 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
       <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm0-9a1 1 0 00-1 1v3a1 1 0 002 0V8a1 1 0 00-1-1zm0 6a1 1 0 100 2 1 1 0 000-2z" />
+    </svg>
+  )
+}
+
+function IconHome() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h3a1 1 0 001-1v-3h2v3a1 1 0 001 1h3a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
     </svg>
   )
 }

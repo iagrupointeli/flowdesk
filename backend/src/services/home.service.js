@@ -13,7 +13,7 @@ const FOLDER_KEY = 'folder:estados'
 // A troca "auto" → "manual" acontece na primeira chamada de saveLayout().
 export async function getHomeLayout(userId) {
   const { rows: links } = await query(
-    `SELECT key, label, url, category, state_abbr, default_starred, default_position
+    `SELECT key, label, url, category, state_abbr, default_starred, default_position, logo_filename
      FROM home_links WHERE archived_at IS NULL`
   )
   const { rows: layoutRows } = await query(

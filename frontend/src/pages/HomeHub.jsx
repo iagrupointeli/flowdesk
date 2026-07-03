@@ -173,7 +173,10 @@ function HubCard({ item, isConfiguring, onClick, onToggleFavorite }) {
 
   const style = {
     transform:  CSS.Transform.toString(transform),
-    transition,
+    // Sem transition durante o arrasto: com ela ativa, o item corre atrás do
+    // cursor em vez de grudar nele (não tem DragOverlay aqui, então quem se
+    // move É o próprio card).
+    transition: isDragging ? undefined : transition,
     opacity:    isDragging ? 0.5 : 1,
     zIndex:     isDragging ? 10 : 'auto',
   }
@@ -203,9 +206,15 @@ function HubCard({ item, isConfiguring, onClick, onToggleFavorite }) {
         </button>
       )}
 
-      <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${colorClass}`}>
-        {item.isFolder ? <IconFolder /> : item.label.charAt(0).toUpperCase()}
-      </span>
+      {!item.isFolder && item.logo_filename ? (
+        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-gray-100">
+          <img src={`/brands/${item.logo_filename}`} alt="" className="h-full w-full object-contain p-1" />
+        </span>
+      ) : (
+        <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${colorClass}`}>
+          {item.isFolder ? <IconFolder /> : item.label.charAt(0).toUpperCase()}
+        </span>
+      )}
       <span className="line-clamp-2 text-xs font-medium leading-tight text-gray-700">{item.label}</span>
     </div>
   )
